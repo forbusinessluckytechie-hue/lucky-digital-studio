@@ -22,6 +22,7 @@ app.post("/api/chat", async (req, res) => {
       });
     }
 
+    // Gemini API key Render Environment Variable se
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -44,8 +45,10 @@ app.post("/api/chat", async (req, res) => {
               parts: [
                 {
                   text: `You are Lucky AI.
+
 Be helpful, friendly and concise.
 Reply in Hindi/Hinglish when the user uses Hindi/Hinglish.
+You are the AI assistant for Lucky Digital Studio.
 
 User message:
 ${message}`
@@ -76,7 +79,9 @@ ${message}`
       });
     }
 
-    res.json({ reply });
+    res.json({
+      reply: reply
+    });
 
   } catch (error) {
     console.error("Server Error:", error);
@@ -87,7 +92,7 @@ ${message}`
   }
 });
 
-// Render ke liye server
+// Render server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Lucky Digital Studio running on port ${PORT}`);
 });
