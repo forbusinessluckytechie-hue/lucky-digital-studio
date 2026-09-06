@@ -6,13 +6,15 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// Website
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
+// AI Chat API
 app.post("/api/chat", async (req, res) => {
   try {
-    const message = req.body.message;
+    const message = req.body?.message;
 
     if (!message || !message.trim()) {
       return res.status(400).json({
@@ -24,7 +26,7 @@ app.post("/api/chat", async (req, res) => {
 
     if (!apiKey) {
       return res.status(500).json({
-        error: "Gemini API key server par set nahi hai."
+        error: "GEMINI_API_KEY Render mein set nahi hai."
       });
     }
 
@@ -32,23 +34,20 @@ app.post("/api/chat", async (req, res) => {
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
       {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
           "x-goog-api-key": apiKey
         },
-
         body: JSON.stringify({
           contents: [
             {
               parts: [
                 {
-                  text:
-                    `You are Lucky AI, a helpful and friendly AI assistant.
-Reply naturally in Hindi/Hinglish when the user uses Hindi/Hinglish.
-Give clear and useful answers.
+                  text: `You are Lucky AI.
+Be helpful, friendly and concise.
+Reply in Hindi/Hinglish when the user uses Hindi/Hinglish.
 
-User:
+User message:
 ${message}`
                 }
               ]
@@ -61,28 +60,26 @@ ${message}`
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Gemini error:", data);
+      console.error("Gemini API Error:", data);
 
-      return res.status(response.status).json({
-        error: data.error?.message || "Gemini API error"
+      return res.status(500).json({
+        error: data?.error?.message || "Gemini API error."
       });
     }
 
     const reply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text;
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!reply) {
       return res.status(500).json({
-        error: "Gemini ne response nahi diya."
+        error: "AI response nahi mila."
       });
     }
 
-    res.json({
-      reply: reply
-    });
+    res.json({ reply });
 
   } catch (error) {
-    console.error(error);
+    console.error("Server Error:", error);
 
     res.status(500).json({
       error: "Server error. Please try again."
@@ -90,6 +87,7 @@ ${message}`
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Lucky AI running on port ${PORT}`);
+// Render ke liye server
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Lucky Digital Studio running on port ${PORT}`);
 });
